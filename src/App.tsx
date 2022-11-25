@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/tauri";
+import { open } from "@tauri-apps/api/shell";
 import init, { greet } from '@wasm/foo'
 import "./App.css";
 
@@ -13,6 +14,20 @@ function App() {
   //   setGreetMsg(await invoke("greet", { name }));
   // }
   
+  // async function openFile() {
+  //   open('/Users/wuwei/Downloads/footerball.mp4').catch(() => {})
+  // }
+
+  function open_url(url: string) {
+    const el = document.createElement("a");
+    el.style.display = "none";
+    el.setAttribute("target", "_blank");
+    el.href = url;
+    document.body.appendChild(el);
+    el.click();
+    document.body.removeChild(el);
+  }
+
   useEffect(() => {
     // load wasm file
     init();
@@ -46,6 +61,13 @@ function App() {
           <button type="button" onClick={() => greet(name)}>
             Greet
           </button>
+          {/* <button type="button" onClick={() => openFile()}>
+            File
+          </button> */}
+          {/* <button type="button" onClick={() => open_url('https://wuwei.fun')}>
+            Url
+          </button> */}
+          
         </div>
       </div>
       <p>{greetMsg}</p>
