@@ -1,0 +1,1 @@
+@wasm/foo :~> @wasm/foo/pkg

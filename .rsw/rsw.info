@@ -1,0 +1,3 @@
+[RSW::OK]
+[RSW::NAME] :~> @wasm/foo
+[RSW::PATH] :~> /Users/wuwei/Desktop/test/rust/tauri-app/@wasm/foo/src/lib.rs
