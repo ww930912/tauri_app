@@ -1,56 +1,79 @@
-import { useEffect, useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/tauri";
-import init, { greet } from '@wasm/foo'
-import "./App.css";
+import {
+  useNavigate,
+  Routes,
+  Route,
+} from "react-router-dom";
+import { withRouter } from "r6helper";
+import { useEffect } from "react";
+import { useState } from "react";
+import { globalStore } from "@/stores/index";
+import { createRouteData, routeData } from "@/router/index";
+import { observer } from "mobx-react";
+import { getPermissions } from "./service";
+import Login from "./pages/login";
+import Center from "./pages/center";
 
-function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+export default withRouter(observer(() => {
+  const { setRouterData, setPermissions } = globalStore;
+  const [routerData, setRouter] = useState<any>();
+  const navigate = useNavigate();
+  const token = sessionStorage.getItem("ACCESS_TOKEN");
 
-  // async function greet() {
-  //   // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-  //   setGreetMsg(await invoke("greet", { name }));
-  // }
-  
   useEffect(() => {
-    // load wasm file
-    init();
-  }, [])
+    console.log('GGGGG')
+    if (globalStore.token || token) {
+      sessionStorage.setItem("ACCESS_TOKEN", globalStore.token || token);
+      getPermissions()
+        .then((res) => {
+          const { data } = res;
+          let temp = createRouteData(data);
+          sessionStorage.setItem("PER", data);
+          setRouter(temp);
+          setRouterData(temp);
+          setPermissions(data);
+        })
+        .finally(() => {
+          navigate("/center/hello");
+        });
+    } else {
+      navigate("/");
+      setRouter(routeData);
+      setRouterData(routeData);
+    }
+  }, [globalStore.token]);
+
+  const toRenderRoute = (item) => {
+    const { children } = item;
+    let arr = [];
+    if (children) {
+      arr = children.map((item) => {
+        return toRenderRoute(item);
+      });
+    }
+    return (
+      <Route
+        children={arr}
+        key={item.path}
+        path={item.path}
+        element={item.element}
+      ></Route>
+    );
+  };
 
   return (
-    <div className="container">
-      <h1>Welcome to Tauri!</h1>
-
-      <div className="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <div className="row">
-        <div>
-          <input
-            id="greet-input"
-            onChange={(e) => setName(e.currentTarget.value)}
-            placeholder="Enter a name..."
-          />
-          <button type="button" onClick={() => greet(name)}>
-            Greet
-          </button>
-        </div>
-      </div>
-      <p>{greetMsg}</p>
-    </div>
+    <>
+      {routerData && (
+        <Routes>
+          <Route path="/" element={<Login></Login>}></Route>
+          <Route
+            path="/center"
+            element={<Center></Center>}
+            children={routerData?.[1]?.children?.map((item) => {
+              return toRenderRoute(item);
+            })}
+          ></Route>
+        </Routes>
+      )}
+    </>
   );
-}
-
-export default App;
+}));

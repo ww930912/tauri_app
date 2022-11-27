@@ -1,4 +1,5 @@
 import { defineConfig } from "vite";
+import { fileURLToPath, URL } from "node:url";
 import react from "@vitejs/plugin-react";
 import { ViteRsw } from 'vite-plugin-rsw';
 
@@ -10,9 +11,19 @@ export default defineConfig({
   // prevent vite from obscuring rust errors
   clearScreen: false,
   // tauri expects a fixed port, fail if that port is not available
+  // server: {
+  //   port: 1420,
+  //   strictPort: true,
+  // },
   server: {
     port: 1420,
-    strictPort: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3120/',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    }
   },
   // to make use of `TAURI_DEBUG` and other env variables
   // https://tauri.studio/v1/api/config#buildconfig.beforedevcommand
@@ -24,5 +35,10 @@ export default defineConfig({
     minify: !process.env.TAURI_DEBUG ? "esbuild" : false,
     // produce sourcemaps for debug builds
     sourcemap: !!process.env.TAURI_DEBUG,
+  },
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
   },
 });
