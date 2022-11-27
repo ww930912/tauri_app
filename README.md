@@ -1,6 +1,6 @@
-# Tauri + React + Typescript + WebAssembly + Vite + Antd 5 + Mobx + Rust + Koa2
+# Tauri + React + Typescript + WebAssembly + Antd 5 + Mobx + Rust + Koa 2 + Vite
 
-This template should help get you started developing with Tauri, React, Typescript, WebAssembly, Antd5, Mobx, Rust And Koa2 in Vite.
+This template should help get you started developing with Tauri, React, Typescript, WebAssembly, Antd 5, Mobx, Rust And Koa 2 in Vite.
 
 ![ALL](https://images.vmartaw.com/2022/11/all.jpg)
 
